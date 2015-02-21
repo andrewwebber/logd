@@ -1,0 +1,15 @@
+[Unit]
+Description=Announce Logstash
+After=logstash.service
+Requires=logstash.service
+BindsTo=logstash.service
+
+[Service]
+EnvironmentFile=/etc/network-environment
+ExecStart=/bin/sh -c 'source /etc/profile.d/etcdctl.sh &&  while true; do etcdctl --no-sync set /services/logstash/host ${DEFAULT_IPV4} --ttl 60;etcdctl --no-sync set /services/logstash/port 1984 --ttl 60;sleep 45;done'
+Restart=always
+RestartSec=20
+
+[X-Fleet]
+MachineMetadata=role=data
+Global=true

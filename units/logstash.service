@@ -1,0 +1,14 @@
+[Unit]
+After=network-online.target
+Description=Logstash Service
+Documentation=http://github.com/andrewwebber/logd
+Requires=network-online.target
+Requires=logstash-announce.service
+
+[Service]
+TimeoutStartSec=10m
+ExecStartPre=-/usr/bin/sh -c '/usr/bin/docker run -d --name logstash -e LOGSTASH_CONFIG_URL=$(etcdctl get /services/pkg)/logstash-systemd.config -p 1984:1984 -p 9292:9292 -p 9200:9200 -p 12345:12345 pblittle/docker-logstash && sleep 5'
+ExecStartPre=-/usr/bin/sh -c '/usr/bin/docker kill logstash && sleep 5'
+ExecStart=/usr/bin/docker start -a -i logstash
+Restart=always
+RestartSec=20

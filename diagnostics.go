@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"path"
 )
 
 // Priority of a journal message
@@ -26,6 +25,7 @@ const (
 var (
 	MachineIdentifier string
 	ModuleName        string
+	LogDirectory      string
 )
 
 func LogFatal(vars map[string]string, err error) {
@@ -36,7 +36,8 @@ func LogFatal(vars map[string]string, err error) {
 
 // Configure sets up the standard logging infrastructure to write to stdout and a local log file
 // The final path of the log file is prefixed with a director path obtained from configuration
-func Configure(modulename string) {
+func Configure(modulename string, logDirectory string) {
+	LogDirectory = logDirectory
 	ModuleName = modulename
 	machineIdentifier, err := getMachineIdentifier()
 	if err != nil {
@@ -66,15 +67,14 @@ func getMachineIdentifier() (string, error) {
 }
 
 func setupTraditionalLog() {
-	logDirectory := path.Join(".", "logd")
-	if _, err := os.Stat(logDirectory); os.IsNotExist(err) {
-		err = os.MkdirAll(logDirectory, 0777)
+	if _, err := os.Stat(LogDirectory); os.IsNotExist(err) {
+		err = os.MkdirAll(LogDirectory, 0777)
 		if err != nil {
 			log.Fatalln(err)
 		}
 	}
 
-	filename := fmt.Sprintf("%s/%s.log", logDirectory, ModuleName)
+	filename := fmt.Sprintf("%s/%s.log", LogDirectory, ModuleName)
 	log.Printf("Logging to logpath - %s", filename)
 
 	var w *os.File

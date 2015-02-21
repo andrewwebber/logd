@@ -1,0 +1,10 @@
+[Unit]
+Requires=network-online.target
+Description=Forwards all logs to logserver
+Documentation=http://github.com/andrewwebber/logd
+
+[Service]
+ExecStart=/bin/sh -c '/usr/bin/journalctl --boot --no-tail -f -o json | /usr/bin/ncat $(etcdctl --no-sync get /services/logstash/host) $(etcdctl --no-sync get /services/logstash/port)'
+KillMode=process
+Restart=always
+RestartSec=20
